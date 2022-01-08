@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import {Base64} from "./libraries/Base64.sol";
 
 // extending the ERC721 contract
 
@@ -21,7 +22,15 @@ contract MyEpicNFT is ERC721URIStorage {
 
     // array with random words
     string[] backends = ["Express", "SpringBoot", "Rails", "Django", "Laravel"];
-    string[] frontends = ["React", "Angular", "Vue", "Svelete", "Flutter"];
+    string[] frontends = [
+        "React",
+        "Angular",
+        "Vue",
+        "Svelete",
+        "Flutter",
+        "ReactNative",
+        "Kotlin"
+    ];
     string[] databases = [
         "Postgres",
         "Mariadb",
@@ -38,15 +47,14 @@ contract MyEpicNFT is ERC721URIStorage {
     }
 
     function getRandomWords(
-        uint256 timestamp,
         uint256 tokenId,
         string[] memory words
     ) public pure returns (string memory) {
         uint256 rand = random(
             string(
                 abi.encodePacked(
-                    "SUGGESTIONS",
-                    Strings.toString(tokenId * words.length * timestamp)
+                    "TECH_STACKS",
+                    Strings.toString(tokenId)
                 )
             )
         );
@@ -65,47 +73,60 @@ contract MyEpicNFT is ERC721URIStorage {
         uint256 newItemId = _tokenIds.current();
 
         string memory backend = getRandomWords(
-            block.timestamp,
+            // block.timestamp,
             newItemId,
             backends
         );
         string memory frontend = getRandomWords(
-            block.timestamp,
+            // block.timestamp,
             newItemId,
             frontends
         );
         string memory database = getRandomWords(
-            block.timestamp,
+            // block.timestamp,
             newItemId,
             databases
         );
+        string memory combinedWord = string(
+            abi.encodePacked(backend, frontend, database)
+        );
+    console.log(combinedWord);
         string memory finalSvg = string(
-            abi.encodePacked(
-                baseSvg,
-                backend,
-                frontend,
-                database,
-                "</text></svg>"
+            abi.encodePacked(baseSvg, combinedWord, "</text></svg>")
+        );
+
+        string memory json = Base64.encode(
+            bytes(
+                string(
+                    abi.encodePacked(
+                        '{"name":"',
+                        combinedWord,
+                        '","description": "Collection of random app development tech suggestions',
+                        '","image": "data:image/svg+xml;base64,',
+                        Base64.encode(bytes(finalSvg)),
+                        '"}'
+                    )
+                )
             )
         );
-        console.log("data:image/svg+xml;base64,%s", finalSvg);
+
+        string memory finalTokenUri = string(
+            abi.encodePacked("data:application/json;base64,", json)
+        );
 
         // Actually mint the NFT to the sender using msg.sender
         _safeMint(msg.sender, newItemId);
 
         // set the NFTs data.
-        _setTokenURI(
-            newItemId,
-            "data:application/json;base64,ewogICAgIm5hbWUiOiAiRXBpY0xvcmRIYW1idXJnZXIiLAogICAgImRlc2NyaXB0aW9uIjogIkFuIE5GVCBmcm9tIGhpZ2hseSBhY2NsYWltZWQgc3F1YXJlIGNvbGxlY3Rpb24iLAogICAgImltYWdlIjoiZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCNGJXeHVjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBd01DOXpkbWNpSUhCeVpYTmxjblpsUVhOd1pXTjBVbUYwYVc4OUluaE5hVzVaVFdsdUlHMWxaWFFpSUhacFpYZENiM2c5SWpBZ01DQXpOVEFnTXpVd0lqNEtJQ0FnSUR4emRIbHNaVDR1WW1GelpTQjdJR1pwYkd3NklIZG9hWFJsT3lCbWIyNTBMV1poYldsc2VUb2djMlZ5YVdZN0lHWnZiblF0YzJsNlpUb2dNVFJ3ZURzZ2ZUd3ZjM1I1YkdVK0NpQWdJQ0E4Y21WamRDQjNhV1IwYUQwaU1UQXdKU0lnYUdWcFoyaDBQU0l4TURBbElpQm1hV3hzUFNKaWJHRmpheUlnTHo0S0lDQWdJRHgwWlhoMElIZzlJalV3SlNJZ2VUMGlOVEFsSWlCamJHRnpjejBpWW1GelpTSWdaRzl0YVc1aGJuUXRZbUZ6Wld4cGJtVTlJbTFwWkdSc1pTSWdkR1Y0ZEMxaGJtTm9iM0k5SW0xcFpHUnNaU0krUlhCcFkweHZjbVJJWVcxaWRYSm5aWEk4TDNSbGVIUStDand2YzNablBnPT0iCn0="
-        );
+        _setTokenURI(newItemId, finalTokenUri);
+
+        // Increment the tokenIds counter for the next NFT to be minted.
+        _tokenIds.increment();
 
         console.log(
             "An NFT w/ ID %s hasn been minted to %s",
             newItemId,
             msg.sender
         );
-
-        // Increment the tokenIds counter for the next NFT to be minted.
-        _tokenIds.increment();
     }
 }
