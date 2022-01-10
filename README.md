@@ -1,6 +1,6 @@
 # Basic NFT example
 - Followed [Buildspace](https://buildspace.so/) guide to create a new NFT contract.
-- UI deployed at [https://nft-starter-project.santhoshchinnas.repl.co/](https://nft-starter-project.santhoshchinnas.repl.co/).
+- UI deployed at [https://replit.com/@SanthoshChinnas/nft-starter-project](https://replit.com/@SanthoshChinnas/nft-starter-project).
 
 ```shell
 # Deploy the contract locally
