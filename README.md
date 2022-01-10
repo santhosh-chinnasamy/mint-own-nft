@@ -10,6 +10,14 @@ npx hardhat compile
 npx hardhat clean
 npx hardhat test
 npx hardhat node
-node scripts/sample-script.js
+node scripts/run.js
 npx hardhat help
+```
+
+```shell
+# Deploy the contract locally
+npx hardhat run scripts/run.js
+
+# Deploy contract to rinkeby testnet
+npx hardhat run scripts/deploy.js --network rinkeby
 ```
