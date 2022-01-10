@@ -16,9 +16,13 @@ contract MyEpicNFT is ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
-    // base svg
-    string baseSvg =
-        "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill: white; font-family: serif; font-size: 24px; }</style><rect width='100%' height='100%' fill='black' /><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>";
+    string svgPartOne =
+        "<svg xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='xMinYMin meet' viewBox='0 0 350 350'><style>.base { fill: white; font-family: serif; font-size: 24px; }</style><rect width='100%' height='100%' fill='";
+    string svgPartTwo =
+        "'/><text x='50%' y='50%' class='base' dominant-baseline='middle' text-anchor='middle'>";
+
+    // Get fancy with it! Declare a bunch of colors.
+    string[] colors = ["red", "#08C2A8", "brown", "yellow", "blue", "green"];
 
     // array with random words
     string[] backends = ["Express", "SpringBoot", "Rails", "Django", "Laravel"];
@@ -48,17 +52,13 @@ contract MyEpicNFT is ERC721URIStorage {
         console.log("This is my NFT Contract. Whoa!");
     }
 
-    function getRandomWords(
-        uint256 tokenId,
-        string[] memory words
-    ) public pure returns (string memory) {
+    function getRandomItemFromArray(uint256 tokenId, string[] memory words)
+        public
+        pure
+        returns (string memory)
+    {
         uint256 rand = random(
-            string(
-                abi.encodePacked(
-                    "TECH_STACKS",
-                    Strings.toString(tokenId)
-                )
-            )
+            string(abi.encodePacked("TECH_STACKS", Strings.toString(tokenId)))
         );
 
         rand = rand % words.length;
@@ -74,27 +74,22 @@ contract MyEpicNFT is ERC721URIStorage {
         // get current tokenId, starts at 0.
         uint256 newItemId = _tokenIds.current();
 
-        string memory backend = getRandomWords(
-            // block.timestamp,
-            newItemId,
-            backends
-        );
-        string memory frontend = getRandomWords(
-            // block.timestamp,
-            newItemId,
-            frontends
-        );
-        string memory database = getRandomWords(
-            // block.timestamp,
-            newItemId,
-            databases
-        );
+        string memory color = getRandomItemFromArray(newItemId, colors);
+        string memory backend = getRandomItemFromArray(newItemId, backends);
+        string memory frontend = getRandomItemFromArray(newItemId, frontends);
+        string memory database = getRandomItemFromArray(newItemId, databases);
         string memory combinedWord = string(
             abi.encodePacked(backend, frontend, database)
         );
-    console.log(combinedWord);
+
         string memory finalSvg = string(
-            abi.encodePacked(baseSvg, combinedWord, "</text></svg>")
+            abi.encodePacked(
+                svgPartOne,
+                color,
+                svgPartTwo,
+                combinedWord,
+                "</text></svg>"
+            )
         );
 
         string memory json = Base64.encode(
